@@ -1,8 +1,7 @@
-# ScriptureFlow Icon Update Task
+# ScriptureFlow Updates (Icons + Favicon + Back Button)
 
 ## Steps:
 
-- [x] 1. Confirm edit plan with user
-- [x] 2. Edit index.html to update SermonFlow icon to sf.png\r\n- [x] 3. Edit
-     index.html to update Bible Study Suite icon to bs.png
-- [x] 4. Verify changes and complete task
+- [x] Previous updates (icons/favicon)
+- [x] Update back button text to "Back" with black text
+- [x] Verify and complete
