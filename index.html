@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#8b5a2b">
+  <meta name="description" content="ScriptureFlow – Your scripture tools. SermonFlow and Bible Study Suite.">
+  <title>ScriptureFlow – Your Scripture Tools</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1614;
+      --parchment: #f5efe6;
+      --accent: #8b5a2b;
+      --accent-light: #c4956a;
+      --sage: #6b7b6c;
+      --cream: #faf7f2;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Subtle parchment texture background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 90, 43, 0.08), transparent),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top nav bar - visible when viewing app */
+    .app-nav {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: var(--parchment);
+      border-bottom: 1px solid rgba(139, 90, 43, 0.2);
+      z-index: 100;
+      align-items: center;
+      padding: 0 1rem;
+      gap: 1rem;
+    }
+
+    .app-nav.visible {
+      display: flex;
+    }
+
+    .home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .home-btn:hover {
+      background: var(--accent-light);
+    }
+
+    .home-btn.external-btn {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    .home-btn.external-btn:hover {
+      background: rgba(139, 90, 43, 0.1);
+    }
+
+    .app-nav-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* Landing view */
+    #landing {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #landing.hidden {
+      display: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 2rem;
+      flex: 1;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-style: italic;
+      color: var(--sage);
+      font-weight: 400;
+    }
+
+    .apps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .app-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--parchment);
+      border: 1px solid rgba(139, 90, 43, 0.2);
+      border-radius: 12px;
+      padding: 2rem;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+    }
+
+    .app-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(26, 22, 20, 0.1);
+      border-color: var(--accent-light);
+    }
+
+    .app-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    .app-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      font-size: 1.5rem;
+    }
+
+    .app-card h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--ink);
+    }
+
+    .app-card p {
+      font-size: 0.95rem;
+      color: var(--sage);
+      line-height: 1.6;
+    }
+
+    .app-card .arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .app-card:hover .arrow {
+      gap: 0.75rem;
+    }
+
+    /* App frame view */
+    #app-view {
+      display: none;
+      position: fixed;
+      inset: 0;
+      flex-direction: column;
+      z-index: 50;
+      background: white;
+    }
+
+    #app-view.visible {
+      display: flex;
+    }
+
+    #app-view .frame-spacer {
+      height: 56px;
+      flex-shrink: 0;
+    }
+
+    #app-frame {
+      flex: 1;
+      width: 100%;
+      border: none;
+      display: block;
+    }
+
+    .frame-fallback {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .frame-fallback.visible {
+      display: flex;
+    }
+
+    .frame-fallback a {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: auto;
+      padding: 2rem 1.5rem;
+      border-top: 1px solid rgba(139, 90, 43, 0.15);
+      font-size: 0.875rem;
+      color: var(--sage);
+      position: relative;
+      z-index: 1;
+    }
+
+    #app-view.visible ~ footer {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <nav class="app-nav" id="app-nav" aria-label="App navigation">
+    <button type="button" class="home-btn" id="home-btn" aria-label="Back to home">← Home</button>
+    <span class="app-nav-title" id="app-nav-title"></span>
+    <a class="home-btn external-btn" id="open-external" href="#" target="_blank" rel="noopener noreferrer" style="margin-left: auto;">Open in new tab</a>
+  </nav>
+
+  <div id="landing">
+    <div class="container">
+      <header>
+        <h1>ScriptureFlow</h1>
+        <p class="tagline">Study, reflect, and grow in the Word</p>
+      </header>
+
+      <div class="apps">
+        <button type="button" class="app-card" data-url="https://sermonflow-840075680860.us-west1.run.app/" data-name="SermonFlow">
+          <div class="app-icon">⛪</div>
+          <h2>SermonFlow</h2>
+          <p>Listen, organize, and engage with sermon recordings and teachings.</p>
+          <span class="arrow">Open SermonFlow →</span>
+        </button>
+
+        <button type="button" class="app-card" data-url="https://jamesbrentlingeriv-spec.github.io/biblestudy/" data-name="Bible Study Suite">
+          <div class="app-icon">📖</div>
+          <h2>Bible Study Suite</h2>
+          <p>Read scripture across multiple translations, take notes, and study with parallel texts.</p>
+          <span class="arrow">Open Bible Study Suite →</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-view">
+    <div class="frame-spacer"></div>
+    <iframe id="app-frame" title="Embedded app"></iframe>
+    <div class="frame-fallback" id="frame-fallback">
+      <p>This app cannot be displayed in an embedded view. Your browser or the app may block embedding.</p>
+      <a id="fallback-link" href="#" target="_blank" rel="noopener noreferrer">Open in new tab →</a>
+    </div>
+  </div>
+
+  <footer>
+    jamesbrentlinger2026™
+  </footer>
+
+  <script>
+    const landing = document.getElementById('landing');
+    const appView = document.getElementById('app-view');
+    const appNav = document.getElementById('app-nav');
+    const appFrame = document.getElementById('app-frame');
+    const appNavTitle = document.getElementById('app-nav-title');
+    const homeBtn = document.getElementById('home-btn');
+    const frameFallback = document.getElementById('frame-fallback');
+    const fallbackLink = document.getElementById('fallback-link');
+    const openExternal = document.getElementById('open-external');
+
+    document.querySelectorAll('.app-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        const url = card.dataset.url;
+        const name = card.dataset.name;
+        openApp(url, name);
+      });
+    });
+
+    function openApp(url, name) {
+      appFrame.src = url;
+      appNavTitle.textContent = name;
+      fallbackLink.href = url;
+      openExternal.href = url;
+
+      landing.classList.add('hidden');
+      appView.classList.add('visible');
+      appNav.classList.add('visible');
+
+      // Check if iframe loads (some sites block embedding)
+      const timeout = setTimeout(() => {
+        try {
+          if (appFrame.contentWindow.length === undefined) {
+            // May have loaded
+          }
+        } catch (_) {}
+      }, 2000);
+
+      appFrame.onerror = () => showFallback();
+    }
+
+    function showFallback() {
+      appFrame.style.display = 'none';
+      frameFallback.classList.add('visible');
+    }
+
+    homeBtn.addEventListener('click', goHome);
+
+    function goHome() {
+      appFrame.src = 'about:blank';
+      appFrame.style.display = 'block';
+      frameFallback.classList.remove('visible');
+
+      landing.classList.remove('hidden');
+      appView.classList.remove('visible');
+      appNav.classList.remove('visible');
+    }
+
+    // PWA: Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
