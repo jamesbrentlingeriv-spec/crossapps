@@ -4,25 +4,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#000000">
-  <meta name="description" content="ScriptureFlow – Your scripture tools. SermonFlow and Bible Study Suite.">
+  <meta name="theme-color" content="#2a2a2a">
+  <meta name="description" content="ScriptureFlow – Ancient tools for modern faith.">
   <title>ScriptureFlow – Your Scripture Tools</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
-  <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ink: #ffffff;
-      --parchment: #370cf5;
-      --accent: #ffffff;
-      --accent-light: #ffffff;
-      --sage: #ffffff;
-      --cream: #000000;
+      --stone-bg: #2d2d2d;
+      --parchment: #f4e4bc;
+      --parchment-ink: #2d241e;
+      --accent-gold: #c5a059;
+      --accent-leather: #5d4037;
+      --nav-height: 70px;
     }
 
     * {
@@ -31,381 +26,327 @@
       box-sizing: border-box;
     }
 
-    html,
-    body {
-      height: 100%;
-    }
-
+    /* Rough Stone Texture Background */
     body {
       font-family: 'Outfit', sans-serif;
-      background: var(--cream);
-      color: var(--ink);
+      background-color: var(--stone-bg);
+      background-image: 
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E"),
+        radial-gradient(circle at center, #4a4a4a 0%, #1a1a1a 100%);
+      background-blend-mode: overlay;
+      color: #e0e0e0;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
       overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
     }
 
-    /* Subtle parchment texture background */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 90, 43, 0.08), transparent),
-        url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* Top nav bar - visible when viewing app */
-    .app-nav {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 56px;
-      background: var(--parchment);
-      border-bottom: 1px solid rgba(139, 90, 43, 0.2);
-      z-index: 100;
-      align-items: center;
-      padding: 0 1rem;
-      gap: 1rem;
-    }
-
-    .app-nav.visible {
-      display: flex;
-    }
-
-    .home-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: var(--accent);
-      color: black;
-      border: none;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s;
-    }
-
-    .home-btn:hover {
-      background: var(--accent-light);
-    }
-
-    .home-btn.external-btn {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-    }
-
-    .home-btn.external-btn:hover {
-      background: rgba(139, 90, 43, 0.1);
-    }
-
-    .app-nav-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    /* Landing view */
-    #landing {
-      position: relative;
-      z-index: 1;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    #landing.hidden {
-      display: none;
+    /* Prevent scrolling when an app is open */
+    body.app-active {
+      overflow: hidden;
     }
 
     .container {
-      position: relative;
-      z-index: 1;
-      max-width: 960px;
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 4rem 1.5rem 2rem;
-      flex: 1;
+      padding: 3rem 1.5rem;
+      z-index: 1;
     }
 
     header {
       text-align: center;
-      margin-bottom: 4rem;
+      margin-bottom: 3rem;
     }
 
     h1 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2.5rem, 6vw, 4rem);
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      color: var(--ink);
+      font-size: clamp(3rem, 8vw, 5rem);
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
       margin-bottom: 0.5rem;
     }
 
     .tagline {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.25rem;
       font-style: italic;
-      color: var(--sage);
-      font-weight: 400;
+      font-size: 1.5rem;
+      color: #bbb;
     }
 
+    /* Verse of the Day Section */
+    .verse-box {
+      background: rgba(0, 0, 0, 0.4);
+      border-left: 3px solid var(--accent-gold);
+      padding: 2rem;
+      margin-bottom: 3rem;
+      text-align: center;
+      font-family: 'Cormorant Garamond', serif;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    #daily-verse {
+      font-size: 1.5rem;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    #daily-ref {
+      display: block;
+      margin-top: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    /* Parchment App Cards */
     .apps {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2.5rem;
+      margin-bottom: 4rem;
     }
 
     .app-card {
-      display: block;
-      text-decoration: none;
-      color: inherit;
       background: var(--parchment);
-      border: 1px solid rgba(139, 90, 43, 0.2);
-      border-radius: 12px;
-      padding: 2rem;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='0.1'/%3E%3C/svg%3E");
+      color: var(--parchment-ink);
+      padding: 2.5rem;
+      border-radius: 2px;
+      box-shadow: 15px 15px 35px rgba(0,0,0,0.6);
+      border: 1px solid rgba(0,0,0,0.1);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       cursor: pointer;
+      text-align: left;
     }
 
     .app-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(26, 22, 20, 0.1);
-      border-color: var(--accent-light);
-    }
-
-    .app-card:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 4px;
-    }
-
-    .app-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-light));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.25rem;
+      transform: translateY(-12px) rotate(-1deg);
+      box-shadow: 20px 20px 45px rgba(0,0,0,0.7);
     }
 
     .app-card h2 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--ink);
+      font-size: 2.2rem;
+      border-bottom: 2px solid var(--accent-leather);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
     }
 
     .app-card p {
-      font-size: 0.95rem;
-      color: var(--sage);
-      line-height: 1.6;
-    }
-
-    .app-card .arrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: var(--accent);
       font-weight: 500;
+      line-height: 1.6;
+      font-size: 1.05rem;
     }
 
-    .app-card:hover .arrow {
-      gap: 0.75rem;
+    .arrow {
+      margin-top: 1.5rem;
+      display: inline-block;
+      font-weight: 600;
+      color: var(--accent-leather);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
     }
 
-    /* App frame view */
-    #app-view {
+    /* Radio & Player Styles */
+    .radio-section {
+      background: rgba(30, 30, 30, 0.6);
+      border: 1px solid #444;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .radio-section h3 {
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--accent-gold);
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    /* Navigation for Embedded View */
+    .app-nav {
       display: none;
+      background: #111;
+      height: var(--nav-height);
+      padding: 0 2rem;
+      border-bottom: 2px solid var(--accent-gold);
       position: fixed;
-      inset: 0;
-      flex-direction: column;
-      z-index: 50;
-      background: white;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    #app-view.visible {
-      display: flex;
+    .app-nav.visible { display: flex; }
+
+    .home-btn {
+      background: var(--accent-gold);
+      color: #000;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      text-transform: uppercase;
+      border-radius: 4px;
+      transition: background 0.2s;
     }
 
-    #app-view .frame-spacer {
-      height: 56px;
-      flex-shrink: 0;
+    .home-btn:hover { background: #e0c080; }
+
+    /* The App Frame Container */
+    #app-view { 
+      display: none; 
+      position: fixed;
+      top: var(--nav-height); 
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      background: #000;
+      z-index: 999;
     }
+
+    #app-view.visible { display: block; }
 
     #app-frame {
-      flex: 1;
       width: 100%;
+      height: 100%;
       border: none;
       display: block;
     }
 
-    .frame-fallback {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      text-align: center;
-      gap: 1rem;
-    }
-
-    .frame-fallback.visible {
-      display: flex;
-    }
-
-    .frame-fallback a {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
     footer {
       text-align: center;
-      margin-top: auto;
-      padding: 2rem 1.5rem;
-      border-top: 1px solid rgba(139, 90, 43, 0.15);
-      font-size: 0.875rem;
-      color: var(--sage);
-      position: relative;
-      z-index: 1;
-    }
-
-    #app-view.visible~footer {
-      display: none;
+      padding: 4rem 2rem;
+      color: #666;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
     }
   </style>
 </head>
 
 <body>
-  <nav class="app-nav" id="app-nav" aria-label="App navigation">
-    <button type="button" class="home-btn" id="home-btn" aria-label="Back to home" style="color: black;">← Back</button>
-    <span class="app-nav-title" id="app-nav-title"></span>
-    <a class="home-btn external-btn" id="open-external" href="#" target="_blank" rel="noopener noreferrer"
-      style="margin-left: auto;">Open in new tab</a>
-  </nav>
+  <nav class="app-nav" id="app-nav">
+    <button class="home-btn" onclick="goHome()">← Back to Archive</button>
+    <span id="app-nav-title" style="font-family: 'Cormorant Garamond'; color: var(--accent-gold); font-size: 1.5rem; font-weight: 600;"></span>
+    <div style="width: 140px;"></div> </nav>
 
   <div id="landing">
     <div class="container">
       <header>
         <h1>ScriptureFlow</h1>
-        <p class="tagline">Study, reflect, and grow in the Word</p>
+        <p class="tagline">Ancient Wisdom, Modern Access</p>
       </header>
 
-      <div class="apps">
-        <button type="button" class="app-card" data-url="https://sermonflow-840075680860.us-west1.run.app/"
-          data-name="SermonFlow">
-          <div class="app-icon"><img src="sf.png" alt="SermonFlow"
-              style="width: 100%; height: 100%; object-fit: contain;"></div>
-          <h2>SermonFlow</h2>
-          <p>Listen, organize, and engage with sermon recordings and teachings.</p>
-          <span class="arrow">Open SermonFlow →</span>
-        </button>
+      <div class="verse-box">
+        <p id="daily-verse">"For I know the plans I have for you," declares the Lord, "plans to prosper you and not to harm you, plans to give you hope and a future."</p>
+        <span id="daily-ref">Jeremiah 29:11</span>
+      </div>
 
-        <button type="button" class="app-card" data-url="https://jamesbrentlingeriv-spec.github.io/biblestudy/"
-          data-name="Bible Study Suite">
-          <div class="app-icon"><img src="bs.png" alt="Bible Study Suite"
-              style="width: 100%; height: 100%; object-fit: contain;"></div>
+      <div class="apps">
+        <div class="app-card" onclick="openApp('https://sermonflow-840075680860.us-west1.run.app/', 'SermonFlow')">
+          <h2>SermonFlow</h2>
+          <p>Behold the spoken word. Access recorded teachings and pastoral wisdom through a digital archive of faith.</p>
+          <span class="arrow">Enter Archive →</span>
+        </div>
+
+        <div class="app-card" onclick="openApp('https://jamesbrentlingeriv-spec.github.io/biblestudy/', 'Bible Study Suite')">
           <h2>Bible Study Suite</h2>
-          <p>Read scripture across multiple translations, take notes, and study with parallel texts.</p>
-          <span class="arrow">Open Bible Study Suite →</span>
-        </button>
+          <p>Examine the sacred scrolls. Compare translations and delve deep into the original context of the Word.</p>
+          <span class="arrow">Begin Study →</span>
+        </div>
+      </div>
+
+      <div class="radio-section">
+        <h3>Sacred Melodies</h3>
+        <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; background: #000;">
+          <iframe 
+            allow="autoplay" 
+            width="100%" 
+            height="200" 
+            src="https://www.iheart.com/live/k-love-5162/?embed=true" 
+            frameborder="0">
+          </iframe>
+        </div>
       </div>
     </div>
+
+    <footer>
+      &copy; 2026 ScriptureFlow | jamesbrentlinger2026™
+    </footer>
   </div>
 
   <div id="app-view">
-    <div class="frame-spacer"></div>
-    <iframe id="app-frame" title="Embedded app"></iframe>
-    <div class="frame-fallback" id="frame-fallback">
-      <p>This app cannot be displayed in an embedded view. Your browser or the app may block embedding.</p>
-      <a id="fallback-link" href="#" target="_blank" rel="noopener noreferrer">Open in new tab →</a>
-    </div>
+    <iframe id="app-frame" src=""></iframe>
   </div>
 
-  <footer>
-    jamesbrentlinger2026™
-  </footer>
-
   <script>
-    const landing = document.getElementById('landing');
-    const appView = document.getElementById('app-view');
-    const appNav = document.getElementById('app-nav');
-    const appFrame = document.getElementById('app-frame');
-    const appNavTitle = document.getElementById('app-nav-title');
-    const homeBtn = document.getElementById('home-btn');
-    const frameFallback = document.getElementById('frame-fallback');
-    const fallbackLink = document.getElementById('fallback-link');
-    const openExternal = document.getElementById('open-external');
-
-    document.querySelectorAll('.app-card').forEach((card) => {
-      card.addEventListener('click', () => {
-        const url = card.dataset.url;
-        const name = card.dataset.name;
-        openApp(url, name);
-      });
-    });
-
+    /**
+     * Opens the selected application in a full-screen iframe
+     * and locks the background scroll.
+     */
     function openApp(url, name) {
-      appFrame.src = url;
-      appNavTitle.textContent = name;
-      fallbackLink.href = url;
-      openExternal.href = url;
+      const landing = document.getElementById('landing');
+      const appNav = document.getElementById('app-nav');
+      const appView = document.getElementById('app-view');
+      const appFrame = document.getElementById('app-frame');
+      const navTitle = document.getElementById('app-nav-title');
 
-      landing.classList.add('hidden');
-      appView.classList.add('visible');
+      landing.style.display = 'none';
       appNav.classList.add('visible');
+      appView.classList.add('visible');
+      document.body.classList.add('app-active'); // Lock scroll
 
-      // Check if iframe loads (some sites block embedding)
-      const timeout = setTimeout(() => {
-        try {
-          if (appFrame.contentWindow.length === undefined) {
-            // May have loaded
-          }
-        } catch (_) { }
-      }, 2000);
-
-      appFrame.onerror = () => showFallback();
+      appFrame.src = url;
+      navTitle.textContent = name;
+      window.scrollTo(0, 0);
     }
 
-    function showFallback() {
-      appFrame.style.display = 'none';
-      frameFallback.classList.add('visible');
-    }
-
-    homeBtn.addEventListener('click', goHome);
-
+    /**
+     * Closes the application and returns to the landing page.
+     */
     function goHome() {
-      appFrame.src = 'about:blank';
-      appFrame.style.display = 'block';
-      frameFallback.classList.remove('visible');
+      const landing = document.getElementById('landing');
+      const appNav = document.getElementById('app-nav');
+      const appView = document.getElementById('app-view');
+      const appFrame = document.getElementById('app-frame');
 
-      landing.classList.remove('hidden');
-      appView.classList.remove('visible');
+      landing.style.display = 'block';
       appNav.classList.remove('visible');
+      appView.classList.remove('visible');
+      document.body.classList.remove('app-active'); // Restore scroll
+
+      appFrame.src = ''; // Clear frame to stop audio/video
     }
 
-    // PWA: Register service worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => { });
-      });
+    /**
+     * Fetches the Daily Verse from OurManna API.
+     * Falls back to the hardcoded verse on error.
+     */
+    async function fetchVerse() {
+      try {
+        const response = await fetch('https://beta.ourmanna.com/api/v1/get?format=json&order=daily');
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        
+        document.getElementById('daily-verse').textContent = `"${data.verse.details.text}"`;
+        document.getElementById('daily-ref').textContent = data.verse.details.reference;
+      } catch (e) {
+        console.warn("ScriptureFlow: Using fallback verse of the day.");
+      }
     }
+
+    // Initialize the daily verse on load
+    fetchVerse();
   </script>
 </body>
-
 </html>
